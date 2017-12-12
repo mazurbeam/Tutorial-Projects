@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import TodoList from './components/TodoList';
+import fetch from 'isomorphic-fetch';
+
 
 const list = {
   item: [
@@ -18,15 +21,48 @@ class App extends Component {
 
     this.state = {
       items: list.item,
-    }
+      filter: 'all',
+      newTodoText: ''
+    };
+    this.onInputChange = this.onInputChange.bind(this);
+    this.onSubmitTodo = this.onSubmitTodo.bind(this);
+  }
+
+  onInputChange(event) {
+    this.setState({newTodoText: event.target.value});
+  }
+
+  onSubmitTodo(event) {
+    const {newTodoText} = this.state;
+    console.log(newTodoText)
+    this.setState({
+      items: [...this.state.items, {
+        id: this.state.items.length+1,
+        text: newTodoText,
+        completed: false
+      }],
+      newTodoText: ''
+    })
+    console.log(this.state)
+    
+    event.preventDefault();
   }
 
   render() {
+    const {
+      newTodo,
+      items,
+    } = this.state
+
     return (
       <div className="App">
         <h1>My ToDo App</h1>
-        <AddTodo>Add Item</AddTodo>
-        <TodoList items={this.state.items}/>
+        <AddTodo
+          value={newTodo}
+          onChange={this.onInputChange}
+          onSubmit={this.onSubmitTodo}
+        >Add Item</AddTodo>
+        <TodoList items={items}/>
       </div>
     );
   }
@@ -34,36 +70,17 @@ class App extends Component {
 
 const AddTodo = ({
   value,
+  onChange,
   onSubmit,
   children
 }) =>
-  <form>
-    <input type="text" value={value}/>
+  <form onSubmit={onSubmit}>
+    <input className="new-todo" type="text" value={value} onChange={onChange}/>
     <button type="submit">
       {children}
     </button>
   </form>
 
-class TodoList extends Component {
-  constructor(props) {
-    super(props);
 
-    
-  }
-  render() {
-    const {
-      items
-    } = this.props;
-    return (
-      <div className="todo-list">
-      {items.map(item => 
-        <div key={item.id} className="list-item">
-          <span>{item.text}</span>
-        </div>
-      )}
-      </div>   
-    )
-  }
-}
 
 export default App;
