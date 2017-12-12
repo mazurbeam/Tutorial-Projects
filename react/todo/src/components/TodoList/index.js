@@ -8,7 +8,8 @@ class TodoList extends Component {
     }
     render() {
       const {
-        items
+        items,
+        filter
       } = this.props;
       return (
         <div className="todo-list">

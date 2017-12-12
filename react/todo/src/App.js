@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import TodoList from './components/TodoList';
+//import TodoList from './components/TodoList';
 import fetch from 'isomorphic-fetch';
 
 
@@ -26,6 +26,14 @@ class App extends Component {
     };
     this.onInputChange = this.onInputChange.bind(this);
     this.onSubmitTodo = this.onSubmitTodo.bind(this);
+    this.updateFilter = this.updateFilter.bind(this);
+    
+  }
+
+  updateFilter(filter) {
+    this.setState({
+      filter: filter
+    })
   }
 
   onInputChange(event) {
@@ -48,21 +56,23 @@ class App extends Component {
     event.preventDefault();
   }
 
+
   render() {
     const {
-      newTodo,
+      newTodoText,
       items,
+      filter
     } = this.state
 
     return (
       <div className="App">
         <h1>My ToDo App</h1>
         <AddTodo
-          value={newTodo}
+          value={newTodoText}
           onChange={this.onInputChange}
           onSubmit={this.onSubmitTodo}
         >Add Item</AddTodo>
-        <TodoList items={items}/>
+        <TodoList items={items} filter={filter} updateFilter={this.updateFilter}/>
       </div>
     );
   }
@@ -75,12 +85,72 @@ const AddTodo = ({
   children
 }) =>
   <form onSubmit={onSubmit}>
-    <input className="new-todo" type="text" value={value} onChange={onChange}/>
+    <input 
+      className="new-todo" 
+      type="text" 
+      value={value} 
+      onChange={onChange} 
+      />
     <button type="submit">
       {children}
     </button>
   </form>
 
+const Button = ({onClick, className, children}) =>
+  <button 
+  onClick = {onClick}
+  className = {className}
+  type = "button"
+  > 
+  {children}
+  </button>
 
+
+class TodoList extends Component {
+    constructor(props) {
+      super(props);
+
+    }
+
+    
+
+    render() {
+      const {
+        items,
+        filter,
+        updateFilter
+      } = this.props;
+
+      const filterItems = (item) => {
+        console.log('running filterItems')
+        if(filter === 'all'){
+          return true;
+        } else if(filter==='active') {
+          return !item.completed;
+        } else if(filter === 'completed') {
+          return item.completed;
+        }
+      }
+
+      const filteredItems = items.filter(filterItems);
+      return (
+        <div className="todo-list">
+          
+          {filteredItems.map(item => 
+            <li key={item.id} className="list-item">
+              <span>{item.text}</span>
+            </li>
+          )}
+
+          <div className="filters">
+            <Button onClick={() => updateFilter('all') }>All</Button>
+            <Button onClick={() => updateFilter('active') }>Active</Button>
+            <Button onClick={() => updateFilter('completed') }>Completed</Button>
+          </div>
+        </div>  
+         
+      )
+    }
+  }
 
 export default App;
