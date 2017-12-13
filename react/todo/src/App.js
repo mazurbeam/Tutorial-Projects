@@ -30,6 +30,13 @@ class App extends Component {
     
   }
 
+  updateTodo(id, status) {
+    const items = this.state;
+    const isId = item => item.id === id;
+    const updatedTodo = items.filter(isId);
+    this.setState({})
+  }
+
   updateFilter(filter) {
     this.setState({
       filter: filter
@@ -42,7 +49,6 @@ class App extends Component {
 
   onSubmitTodo(event) {
     const {newTodoText} = this.state;
-    console.log(newTodoText)
     this.setState({
       items: [...this.state.items, {
         id: this.state.items.length+1,
@@ -66,13 +72,18 @@ class App extends Component {
 
     return (
       <div className="App">
+        <div className="header">
         <h1>My ToDo App</h1>
         <AddTodo
+          className="new-todo"
           value={newTodoText}
           onChange={this.onInputChange}
           onSubmit={this.onSubmitTodo}
         >Add Item</AddTodo>
+        </div>
         <TodoList items={items} filter={filter} updateFilter={this.updateFilter}/>
+        
+        
       </div>
     );
   }
@@ -90,35 +101,22 @@ const AddTodo = ({
       type="text" 
       value={value} 
       onChange={onChange} 
+      placeholder="What need's to be done?"
       />
     <button type="submit">
       {children}
     </button>
   </form>
 
-const Button = ({onClick, className, children}) =>
-  <button 
-  onClick = {onClick}
-  className = {className}
-  type = "button"
-  > 
-  {children}
-  </button>
 
 
 class TodoList extends Component {
-    constructor(props) {
-      super(props);
-
-    }
-
-    
-
     render() {
       const {
         items,
         filter,
-        updateFilter
+        updateFilter,
+        updateTodo,
       } = this.props;
 
       const filterItems = (item) => {
@@ -134,19 +132,31 @@ class TodoList extends Component {
 
       const filteredItems = items.filter(filterItems);
       return (
-        <div className="todo-list">
+        <div>
+          <ul className="todo-list">
+            {filteredItems.map(item => 
+              <li key={item.id} className="list-item">
+              {item.completed
+              ? <input className="toggle" type="checkbox" 
+                  onClick={() => updateTodo(item.id, false)}/>
+                  : <input className="toggle" type="checkbox" 
+                  onClick={() => updateTodo(item.id, true)}/>
+              }
+                
+                <span><label>{item.text}</label></span>
+              </li>
+            )}
+          </ul>
           
-          {filteredItems.map(item => 
-            <li key={item.id} className="list-item">
-              <span>{item.text}</span>
-            </li>
-          )}
 
-          <div className="filters">
-            <Button onClick={() => updateFilter('all') }>All</Button>
-            <Button onClick={() => updateFilter('active') }>Active</Button>
-            <Button onClick={() => updateFilter('completed') }>Completed</Button>
+          <div className="footer">
+          <ul className="filters">
+            <li onClick={() => updateFilter('all') }>All</li>
+            <li onClick={() => updateFilter('active') }>Active</li>
+            <li onClick={() => updateFilter('completed') }>Completed</li>
+          </ul>
           </div>
+          
         </div>  
          
       )
